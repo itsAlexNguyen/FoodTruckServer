@@ -12,7 +12,7 @@ trucks = FoodTruck()
 
 let controller = FoodTruckController(backend: trucks)
 
-let port = Int(5984)
+let port = Int(8080)
 Log.verbose("Assigned port \(port)")
 Kitura.addHTTPServer(onPort: port, with: controller.router)
 Kitura.run()

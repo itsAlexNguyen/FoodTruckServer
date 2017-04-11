@@ -18,6 +18,7 @@ public final class FoodTruckController {
     
     public init(backend: FoodTruckAPI) {
         trucks = backend
+        routeSetup()
     }
     
     public func routeSetup() {
