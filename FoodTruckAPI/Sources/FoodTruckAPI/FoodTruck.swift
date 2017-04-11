@@ -33,6 +33,7 @@ public class FoodTruck {
     public init() {
         connectionProps = ConnectionProperties(host: "localhost", port: Int16(5984), secured: false, username: "alex", password: "123456")
         Log.info("Connected to localhost")
+        setupDb()
     }
     
     // MARK : Private helpers
@@ -135,7 +136,7 @@ extension FoodTruck: FoodTruckAPI {
         
         database.retrieve(docId) { (doc, error) in
             guard let doc = doc,
-                let docId = doc["id"].string,
+                let docId = doc["_id"].string,
                 let name = doc["name"].string,
                 let foodType = doc["foodtype"].string,
                 let avgCost = doc["avgcost"].float,
