@@ -23,7 +23,7 @@ public enum APICollectionError: Error {
     case AuthError
 }
 
-public class FoodTruck: FoodTruckAPI {
+public class FoodTruck {
     // MARK : Connection Properties
     let dbName = "foodtruckapi"
     let designName = "foodtruckdesign"
@@ -35,27 +35,8 @@ public class FoodTruck: FoodTruckAPI {
         Log.info("Connected to localhost")
     }
     
-    // MARK : Public Accessors
-    public func getAllTrucks(completion: @escaping ([FoodTruckItem]?, Error?) -> Void) {
-        let couchClient = CouchDBClient(connectionProperties: connectionProps)
-        let database = couchClient.database(dbName)
-        
-        database.queryByView("all_trucks", ofDesign: designName, usingParameters: [.descending(true), .includeDocs(true)]) { (doc, error) in
-            if let doc = doc, error == nil {
-                do{
-                    let trucks = try self.parseTrucks(doc)
-                    completion(trucks, nil)
-                } catch {
-                    completion(nil, error)
-                }
-            } else {
-                completion(nil, error)
-            }
-        }
-    }
-    
     // MARK : Private helpers
-    private func parseTrucks(_ document: JSON) throws -> [FoodTruckItem] {
+    fileprivate func parseTrucks(_ document: JSON) throws -> [FoodTruckItem] {
         guard let rows = document["rows"].array else { throw APICollectionError.ParseError }
         
         let trucks: [FoodTruckItem] = rows.flatMap {
@@ -66,10 +47,12 @@ public class FoodTruck: FoodTruckAPI {
                 let avgCost = doc[3].float,
                 let latitude = doc[4].float,
                 let longitude = doc[5].float else { return nil }
+            return FoodTruckItem(docId: id, name: name, foodType: foodType, avgCost: avgCost, latitude: latitude, longitude: longitude)
         }
+        return trucks
     }
     
-    private func setupDbDesign(db: Database) {
+    fileprivate func setupDbDesign(db: Database) {
         let design: [String: Any] = [
             "_id": "_design/foodtruckdesign",
             "views": [
@@ -95,7 +78,7 @@ public class FoodTruck: FoodTruckAPI {
         }
     }
     
-    private func setupDb() {
+    fileprivate func setupDb() {
         let couchClient = CouchDBClient(connectionProperties: connectionProps)
         couchClient.dbExists(dbName) { (exists, error) in
             if exists {
@@ -112,5 +95,41 @@ public class FoodTruck: FoodTruckAPI {
                 })
             }
         }
+    }
+}
+
+extension FoodTruck: FoodTruckAPI {
+    public func getAllTrucks(completion: @escaping ([FoodTruckItem]?, Error?) -> Void) {
+        let couchClient = CouchDBClient(connectionProperties: connectionProps)
+        let database = couchClient.database(dbName)
+        
+        database.queryByView("all_trucks", ofDesign: designName, usingParameters: [.descending(true), .includeDocs(true)]) { (doc, error) in
+            if let doc = doc, error == nil {
+                do{
+                    let trucks = try self.parseTrucks(doc)
+                    completion(trucks, nil)
+                } catch {
+                    completion(nil, error)
+                }
+            } else {
+                completion(nil, error)
+            }
+        }
+    }
+    
+    public func getTruck(docId: String, completion: @escaping ([FoodTruckItem]?, Error?) -> Void) {
+        
+    }
+    
+    public func addTruck(name: String, foodType: String, avgCost: Float, latitude: Float, longitude: Float, completion: @escaping ([FoodTruckItem]?, Error?) -> Void) {
+
+    }
+    
+    public func deleteTruck(docId: String, completion: @escaping (Error?) -> Void) {
+        
+    }
+    
+    public func clearAll(completion: @escaping (Error?) -> Void) {
+        
     }
 }
