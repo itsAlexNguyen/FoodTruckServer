@@ -17,7 +17,6 @@ let controller = FoodTruckController(backend: trucks)
     let myKeyPath = "/creds/Self-Signed/key.pem"
     
     let mySSLConfig =  SSLConfig(withCACertificateDirectory: nil, usingCertificateFile: myCertPath, withKeyFile: myKeyPath, usingSelfSignedCerts: true)
-    mySSLConfig.cipherSuite = "ALL"
     Kitura.addHTTPServer(onPort: 8080, with: controller.router, withSSL: mySSLConfig)
 #else
     let port = Int(8080)
