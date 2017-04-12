@@ -1,5 +1,5 @@
 db:
- images: klaemo/couchdb:2.0.0
+ image: klaemo/couchdb:2.0.0
  port:
  - "5984:5984"
  enviroment:
